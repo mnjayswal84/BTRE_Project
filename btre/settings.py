@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'realtors.apps.RealtorsConfig',
     'accounts.apps.AccountsConfig',
     'contacts.apps.ContactsConfig',
+    'verify_email',
 ]
 
 MIDDLEWARE = [
@@ -143,8 +144,11 @@ MESSAGE_TAGS = {
 }
 
 # Email Config
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
+EMAIL_HOST_USER = 'mnjayswal10@gmail.com'
+EMAIL_HOST_PASSWORD = 'pqrs@123'
 EMAIL_USE_TLS = True
+
+DEFAULT_FROM_EMAIL = 'noreply<no_reply@domain.com>'

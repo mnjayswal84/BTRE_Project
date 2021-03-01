@@ -2,6 +2,17 @@ from django.shortcuts import render, redirect
 from django.contrib import messages, auth
 from django.contrib.auth.models import User
 from contacts.models import Contact
+from verify_email.email_handler import send_verification_email
+from django.core.mail import EmailMessage
+from realtors.models import Realtor
+from django.views import View
+from django.urls import reverse
+from .utils import token_generator
+
+from django.utils.encoding import force_bytes, force_text, DjangoUnicodeDecodeError
+from django.utils.http import urlsafe_base64_decode,urlsafe_base64_encode
+from django.contrib.sites.shortcuts import get_current_site
+
 
 def register(request):
     if request.method == 'POST':
@@ -31,8 +42,34 @@ def register(request):
                     #auth.login(request, user)
                     #messages.success('You are now loged in')
                     #return redirect('index')
+                    user.is_active = False
                     user.save()
-                    messages.success(request, 'You are now registered and log in')
+                    #if user_type=='realtor':
+                     #   realtor = Realtor.objects.create(user_id=user) 
+                    # path_to_view
+                    # getting domain we are on
+                    # relative urlto verification
+                    # encode uid
+                    # token
+                    uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+                    domain = get_current_site(request).domain
+                    link = reverse('activate', kwargs={
+                        'uidb64': uidb64, 'token': token_generator.make_token(user)
+                    })
+
+                    email_subject = 'Activate your account'
+
+                    activate_url = 'http://'+domain+link                    
+                    email_body = 'Hi '+user.username + ',' + \
+                        '\n Please use this link to verify your account\n' + activate_url 
+                    email = EmailMessage(
+                        email_subject,
+                        email_body,
+                        'mnjayswal10@gmail.com',
+                        [email],
+                    )
+                    email.send(fail_silently=False)
+                    messages.success(request, 'Activate your account from mail') #messages.success(request, 'You are now registered and log in') changed this line
                     return redirect('login')
 
         else:
@@ -73,3 +110,29 @@ def dashboard(request):
         'contacts': user_contacts
     }
     return render(request, 'accounts/dashboard.html', context)
+
+class VerificationView(View):
+    def get(self, request, uidb64, token):
+        try:
+            id = force_text(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=id)
+
+            if not token_generator.check_token(user, token):
+                return redirect('login'+'?message='+'User already activated')
+
+            if user.is_active:
+                return redirect('login')
+            user.is_active = True
+            user.save()
+
+            messages.success(request, 'Account activated successfully')
+            return redirect('login')
+        
+        except Exception as ex:
+            pass
+
+        return redirect('login')
+'''
+class LoginView(View):
+    def get(self, request):
+        return render(request, 'login')'''

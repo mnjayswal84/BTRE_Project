@@ -33,6 +33,7 @@ def contact(request):
             'There has been an inquiry for ' + listing + '. Sign into the admin panel for more info.\n\n'+ 
             'The person has send the message for anquiry as follow: '+ message,
             'email',
+            'email_id',
             [realtor_email],
             fail_silently=False 
         )
