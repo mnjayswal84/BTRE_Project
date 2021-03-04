@@ -2,7 +2,7 @@ from django.db import models
 from datetime import datetime
 from django.contrib.auth.models import User 
 class Realtor(models.Model):
-    user_id = models.OneToOneField(User, on_delete=models.CASCADE)
+    user_id = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     photo = models.ImageField(upload_to='photos/%Y/%m/%d/', blank=True)
     description = models.TextField(blank=True)
     phone = models.CharField(max_length=20, default=0)

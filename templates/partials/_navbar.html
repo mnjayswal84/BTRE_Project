@@ -37,6 +37,19 @@
           >
             <a class="nav-link" href="{% url 'listings' %}">Featured Listings</a>
           </li>
+          {% if user.is_authenticated %}
+          {% if request.user.profile %}
+          <li 
+            {% if 'add_listing' in request.path %}
+              class="nav-item active mr-3"
+            {% else %}
+              class="nav-item mr-3"
+            {% endif %}
+          >
+            <a class="nav-link" href="{% url 'add_listing' %}">Add Listings</a>
+          </li>
+          {% endif %}
+          {% endif %}
         </ul>
 
         <ul class="navbar-nav ml-auto">

@@ -1,0 +1,26 @@
+{% extends 'base.html' %} 
+
+{% load static %}
+
+{% block title %} | Add New Listing {% endblock %}
+
+{% block content %}
+<section id="showcase-inner" class="py-5 text-white">
+  {%if request.user.profile %}  
+  <div class="container">
+      <div class="row text-center">
+        <div class="col-md-12">
+          <h1 class="display-4">Add New Listing</h1>
+          <p class="lead">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Sunt, pariatur!</p>
+        </div>
+      </div>
+    </div>
+{% endif %}
+  </section>
+  <br>
+<form action="{% url 'add_listing' %}" method="POST" enctype="multipart/form-data">   
+    {% csrf_token %}
+    {{form.as_p}}
+    <button type="submit" value="Submit">Submit</button>
+</form>
+{% endblock %}

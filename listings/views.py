@@ -1,8 +1,9 @@
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from .choices import price_choices, bedroom_choices, state_choices
 
 from .models import Listing
+from django.urls import reverse_lazy
 
 def index(request):
     listings = Listing.objects.order_by('-list_date').filter(is_published=True) 
@@ -67,3 +68,39 @@ def search(request):
         'values': request.GET
     }
     return render(request, 'listings/search.html',context)
+
+
+from .forms import ListingForm 
+ 
+def add_listing(request): 
+    context ={} 
+    if request.method == 'POST':
+ 
+        print("Before creteing form obj")
+        # create object of form 
+        form = ListingForm(request.POST or None, request.FILES or None) 
+    
+        print("After creteing form obj") 
+        # check if form data is valid 
+        print(form.errors.as_data())
+        if form.is_valid(): 
+        # save the form data to model 
+            print("Before saving form")
+            form.save() 
+    
+            print("After saving form") 
+        else:
+            messages.error(request, 'Invalid Data Input')
+    
+    
+        context['form']= form 
+        p=reverse_lazy("listings")
+        return redirect(p)
+        #else:
+        # print("Invalid") 
+    else:
+ 
+        print('abc')
+        form=ListingForm()
+        context['form']= form 
+        return render(request, "listings/add_listing.html", context)

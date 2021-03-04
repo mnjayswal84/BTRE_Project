@@ -23,6 +23,7 @@ def register(request):
         email = request.POST['email']
         password = request.POST['password']
         password2 = request.POST['password2']
+        user_type = request.POST['user_type']
     
         # Check if password match
         if password == password2:
@@ -44,8 +45,8 @@ def register(request):
                     #return redirect('index')
                     user.is_active = False
                     user.save()
-                    #if user_type=='realtor':
-                     #   realtor = Realtor.objects.create(user_id=user) 
+                    if user_type=='realtor':
+                       realtor = Realtor.objects.create(user_id=user) 
                     # path_to_view
                     # getting domain we are on
                     # relative urlto verification
@@ -83,15 +84,34 @@ def login(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
+        user_type = request.POST['user_type']
 
         user = auth.authenticate(username=username, password=password)
 
         if user is not None:
-            auth.login(request, user)
-            messages.success(request, 'You are now logged in')
-            return redirect('dashboard')
+            if user_type=='realtor':
+                auth.login(request, user)
+                try:
+                    request.user.profile
+                    messages.success(request, 'You are now logged in')
+                    return redirect('index')
+                except:
+                    messages.error(request, "You can't loin as Realtor")
+                    return redirect('login')
+            else:
+                auth.login(request, user)
+                try:
+                    request.user.profile
+                    messages.error(request, "You can't loin as Buyer")
+                    return redirect('login')
+                except:
+                    messages.success(request, "You are now logged in")
+                    return redirect('index')
+                
+                messages.success(request, 'You are now logged in')
+                return redirect('dashboard')
         else:
-            messages.error(request, 'Invalid credentials')
+            messages.error(request,'Invalid credentials')
             return redirect('login')
     else:
         return render(request, 'accounts/login.html')
